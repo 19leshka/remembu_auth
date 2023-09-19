@@ -3,8 +3,8 @@ import asyncio
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.database.postgres.database import init_tables
 from src.core.config import settings
+from src.database.postgres.database import init_tables
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -22,6 +22,7 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 # app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.on_event("startup")
 async def startup():
