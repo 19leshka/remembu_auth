@@ -1,6 +1,9 @@
+from typing import Any
+
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import as_declarative, declarative_base
+from sqlalchemy.orm import declared_attr
 
 from src.core.config import settings
 
@@ -15,7 +18,17 @@ url = (
 
 
 engine = create_async_engine(url, echo=True)
-Base = declarative_base()
+
+
+@as_declarative()
+class Base:
+    id: Any
+    __name__: str
+
+    # Generate __tablename__ automatically
+    @declared_attr
+    def __tablename__(cls) -> str:
+        return cls.__name__.lower()
 
 
 AsyncSessionFactory = async_sessionmaker(
