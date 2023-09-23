@@ -1,7 +1,6 @@
 from typing import Any
 
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.ext.declarative import as_declarative, declarative_base
 from sqlalchemy.orm import declared_attr
 
@@ -34,11 +33,6 @@ class Base:
 AsyncSessionFactory = async_sessionmaker(
     class_=AsyncSession, expire_on_commit=False, bind=engine
 )
-
-
-async def get_session() -> AsyncSession:
-    async with AsyncSessionFactory() as session:
-        yield session
 
 
 async def init_tables():
