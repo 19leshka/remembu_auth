@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Generic, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy import Result, and_, delete, select, update
