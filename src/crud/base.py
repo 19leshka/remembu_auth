@@ -36,9 +36,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await session.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_list(self, session: AsyncSession, **kwargs) -> [ModelType]:
+    async def get_list(
+        self, session: AsyncSession, *, skip: int = 0, limit: int = 100, **kwargs
+    ) -> [ModelType]:
         query = self.filter_query(query=select(self.model), kwargs=kwargs)
-        result: Result = await session.execute(query)
+        result: Result = await session.execute(query.offset(skip).limit(limit))
         return result.scalars().all()
 
     async def add(

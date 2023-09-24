@@ -85,3 +85,16 @@ async def update_user_me(
         user_in,
     )
     return user
+
+
+@router.get("/", response_model=[schemas.User])
+async def read_users(
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(get_current_superuser),
+) -> Any:
+    """
+    Retrieve users.
+    """
+    return await crud.user.get_list(db, skip=skip, limit=limit)
