@@ -1,13 +1,14 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import crud, models, schemas
 from src.api.deps import get_current_superuser, get_current_user, get_db
-from src.core.exceptions import DuplicatedEntryError, ForbiddenException
+from src.core.exceptions import (DuplicatedEntryError, ForbiddenException,
+                                 NotFoundException)
 
 router = APIRouter()
 
@@ -69,7 +70,7 @@ async def update_user_me(
     current_user: models.User = Depends(get_current_user),
 ) -> Any:
     """
-    Update ow
+    Update own user.
     """
     current_user_data = jsonable_encoder(current_user)
     user_in: schemas.UserUpdate = schemas.UserUpdate(**current_user_data)
@@ -79,11 +80,7 @@ async def update_user_me(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
-    user = await crud.user.update(
-        db,
-        current_user.id,
-        user_in,
-    )
+    user = await crud.user.update(db, current_user.id, user_in)
     return user
 
 
@@ -110,8 +107,31 @@ async def read_user_by_id(
     Get a specific user by id.
     """
     user = await crud.user.get(db, id=user_id)
+    if not user:
+        raise NotFoundException(
+            message="The user with this username does not exist in the system",
+        )
     if user == current_user:
         return user
     if not await crud.user.is_superuser(current_user):
         raise ForbiddenException("The user doesn't have enough privileges")
     return user
+
+
+@router.put("/{user_id}", response_model=schemas.User)
+async def update_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    user_in: schemas.UserUpdate,
+    current_user: models.User = Depends(get_current_superuser),
+) -> Any:
+    """
+    Update a user.
+    """
+    user = await crud.user.get(db, id=user_id)
+    if not user:
+        raise NotFoundException(
+            message="The user with this username does not exist in the system",
+        )
+    return await crud.user.update(db, id_=user.id, obj_in=user_in)
