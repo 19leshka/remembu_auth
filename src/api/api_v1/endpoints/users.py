@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import crud, models, schemas
 from src.api.deps import get_current_superuser, get_current_user, get_db
-from src.core.exceptions import DuplicatedEntryError
+from src.core.exceptions import DuplicatedEntryError, ForbiddenException
 
 router = APIRouter()
 
@@ -98,3 +98,20 @@ async def read_users(
     Retrieve users.
     """
     return await crud.user.get_list(db, skip=skip, limit=limit)
+
+
+@router.get("/{user_id}", response_model=schemas.User)
+async def read_user_by_id(
+    user_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    """
+    Get a specific user by id.
+    """
+    user = await crud.user.get(db, id=user_id)
+    if user == current_user:
+        return user
+    if not await crud.user.is_superuser(current_user):
+        raise ForbiddenException("The user doesn't have enough privileges")
+    return user
