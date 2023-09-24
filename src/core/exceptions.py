@@ -10,3 +10,8 @@ class DuplicatedEntryError(HTTPException):
 class ForbiddenException(HTTPException):
     def __init__(self, message):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=message)
+
+
+class NotFoundException(HTTPException):
+    def __init__(self, message):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
