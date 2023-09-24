@@ -1,6 +1,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Body, Depends
+from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -56,3 +57,31 @@ async def read_user_me(
     Get current user.
     """
     return current_user
+
+
+@router.put("/me", response_model=schemas.User)
+async def update_user_me(
+    *,
+    db: AsyncSession = Depends(get_db),
+    password: str = Body(None),
+    full_name: str = Body(None),
+    email: EmailStr = Body(None),
+    current_user: models.User = Depends(get_current_user),
+) -> Any:
+    """
+    Update ow
+    """
+    current_user_data = jsonable_encoder(current_user)
+    user_in: schemas.UserUpdate = schemas.UserUpdate(**current_user_data)
+    if password is not None:
+        user_in.password = password
+    if full_name is not None:
+        user_in.full_name = full_name
+    if email is not None:
+        user_in.email = email
+    user = await crud.user.update(
+        db,
+        current_user.id,
+        user_in,
+    )
+    return user

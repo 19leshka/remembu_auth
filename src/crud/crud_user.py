@@ -39,6 +39,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         await session.refresh(db_obj)
         return db_obj
 
+    async def update(
+        self, session: AsyncSession, id_: int, obj_in: UserUpdate
+    ) -> Optional[User]:
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.model_dump(exclude_unset=True)
+        if update_data["password"]:
+            update_data["hashed_password"] = get_password_hash(update_data["password"])
+            del update_data["password"]
+        return super().update(session, id_=id_, data=obj_in)
+
     async def is_superuser(self, user: User) -> bool:
         return user.is_superuser
 
