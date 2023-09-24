@@ -31,7 +31,7 @@ async def get_current_user(
         )
         token_data = schemas.TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
-        raise ForbiddenException
+        raise ForbiddenException("Could not validate credentials")
     user = crud.user.get_one(db, id_=token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

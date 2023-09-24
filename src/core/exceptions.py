@@ -8,8 +8,5 @@ class DuplicatedEntryError(HTTPException):
 
 
 class ForbiddenException(HTTPException):
-    def __init__(self):
-        super().__init__(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-        )
+    def __init__(self, message):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=message)
