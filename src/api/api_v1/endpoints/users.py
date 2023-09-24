@@ -1,10 +1,11 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import crud, models, schemas
-from src.api.deps import get_current_user, get_db
+from src.api.deps import get_current_superuser, get_current_user, get_db
 from src.core.exceptions import DuplicatedEntryError
 
 router = APIRouter()
@@ -12,7 +13,10 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.User)
 async def create_user(
-    *, db: AsyncSession = Depends(get_db), user_in: schemas.UserCreate
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_in: schemas.UserCreate,
+    current_user: models.User = Depends(get_current_superuser),
 ) -> Any:
     """
     Create new user.
@@ -21,6 +25,25 @@ async def create_user(
     if user:
         raise DuplicatedEntryError("A user with this email already exists")
     user = await crud.user.add(db, obj_in=user_in)
+    return user
+
+
+@router.post("/open", response_model=schemas.User)
+async def create_user_open(
+    *,
+    db: AsyncSession = Depends(get_db),
+    password: str = Body(...),
+    email: EmailStr = Body(...),
+    full_name: str = Body(...),
+) -> Any:
+    """
+    Create new user without the need to be logged in.
+    """
+    user = await crud.user.get_by_email(db, email=email)
+    if user:
+        raise DuplicatedEntryError("A user with this email already exists")
+    user_in = schemas.UserCreate(password=password, email=email, full_name=full_name)
+    user = await crud.user.add(db, user_in=user_in)
     return user
 
 
