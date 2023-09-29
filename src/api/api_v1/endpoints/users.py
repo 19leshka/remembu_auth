@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends
 from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -84,7 +84,7 @@ async def update_user_me(
     return user
 
 
-@router.get("/", response_model=[schemas.User])
+@router.get("/", response_model=List[schemas.User])
 async def read_users(
     db: AsyncSession = Depends(get_db),
     skip: int = 0,
