@@ -4,12 +4,10 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.api.api_v1.api import api_router
-from src.core.config import settings
+from src.core.config import app_configs, settings
 from src.database.postgres.database import init_tables
 
-app = FastAPI(
-    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
-)
+app = FastAPI(**app_configs)
 
 
 # Set all CORS enabled origins

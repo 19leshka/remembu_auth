@@ -1,5 +1,5 @@
 import secrets
-from typing import List, Union
+from typing import Any, List, Tuple, Union
 
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -28,8 +28,18 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     PROJECT_NAME: str
+    ENVIRONMENT: str
+
+    DOCS_ENVIRONMENT: Tuple[str, ...] = ("local", "staging", "development")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
+
+app_configs: dict[str, Any] = {
+    "title": settings.PROJECT_NAME,
+    "openapi_url": None,
+}
+if settings.ENVIRONMENT in settings.DOCS_ENVIRONMENT:
+    app_configs["openapi_url"] = f"{settings.API_V1_STR}/openapi.json"
