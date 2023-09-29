@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends
 from fastapi.encoders import jsonable_encoder
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from src import crud, models, schemas
 from src.api.deps import get_current_superuser, get_current_user, get_db
@@ -13,7 +14,7 @@ from src.core.exceptions import (DuplicatedEntryError, ForbiddenException,
 router = APIRouter()
 
 
-@router.post("/", response_model=schemas.User)
+@router.post("/", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def create_user(
     *,
     db: AsyncSession = Depends(get_db),
@@ -30,7 +31,7 @@ async def create_user(
     return user
 
 
-@router.post("/open", response_model=schemas.User)
+@router.post("/open", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def create_user_open(
     *,
     db: AsyncSession = Depends(get_db),
