@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     PG_PORT: int
     ACCESS_HOURS: int
 
+    KAFKA_HOST: str
+    KAFKA_PORT: str
+    KAFKA_TOPIC: str
+    KAFKA_CONSUMER_GROUP_PREFIX: str
+
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
