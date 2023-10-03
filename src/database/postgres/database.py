@@ -7,16 +7,6 @@ from sqlalchemy.orm import DeclarativeBase, declared_attr
 
 from src.core.config import settings
 
-url = (
-    f"postgresql+asyncpg://"
-    f"{settings.PG_USER}:"
-    f"{settings.PG_PASS}@"
-    f"{settings.PG_HOST}:"
-    f"{settings.PG_PORT}/"
-    f"{settings.PG_DB}"
-)
-
-
 POSTGRES_INDEXES_NAMING_CONVENTION = {
     "ix": "%(column_0_label)s_idx",
     "uq": "%(table_name)s_%(column_0_name)s_key",
@@ -27,7 +17,10 @@ POSTGRES_INDEXES_NAMING_CONVENTION = {
 
 metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
 
-engine = create_async_engine(url, echo=True)
+engine = create_async_engine(
+    settings.ASYNC_DATABASE_URL,
+    echo=True,
+)
 
 
 class Base(DeclarativeBase):

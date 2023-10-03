@@ -37,12 +37,12 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 async def startup():
     log.info("Initializing API ...")
     asyncio.create_task(init_tables())
-    await kafka_producer.start()
-    await kafka_initialize()
-    await kafka_consume()
+    # await kafka_producer.start()
+    # await kafka_initialize()
+    # await kafka_consume()
 
 
-@app.on_event("shutdown")
-async def shutdown():
-    await kafka_producer.stop()
-    await kafka_consumer.stop()
+# @app.on_event("shutdown")
+# async def shutdown():
+#     await kafka_producer.stop()
+#     await kafka_consumer.stop()

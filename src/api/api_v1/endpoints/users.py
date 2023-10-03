@@ -46,7 +46,7 @@ async def create_user_open(
     if user:
         raise DuplicatedEntryError("A user with this email already exists")
     user_in = schemas.UserCreate(password=password, email=email, full_name=full_name)
-    user = await crud.user.add(db, user_in=user_in)
+    user = await crud.user.add(db, obj_in=user_in)
     return user
 
 

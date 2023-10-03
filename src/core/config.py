@@ -1,7 +1,7 @@
 import secrets
 from typing import Any, List, Tuple, Union
 
-from pydantic import AnyHttpUrl, field_validator
+from pydantic import AnyHttpUrl, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,6 +36,18 @@ class Settings(BaseSettings):
     ENVIRONMENT: str
 
     DOCS_ENVIRONMENT: Tuple[str, ...] = ("local", "staging", "development")
+
+    @computed_field
+    @property
+    def ASYNC_DATABASE_URL(self) -> str:
+        return (
+            f"postgresql+asyncpg://"
+            f"{self.PG_USER}:"
+            f"{self.PG_PASS}@"
+            f"{self.PG_HOST}:"
+            f"{self.PG_PORT}/"
+            f"{self.PG_DB}"
+        )
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"

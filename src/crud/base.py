@@ -44,9 +44,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().all()
 
     async def add(
-        self, session: AsyncSession, model: CreateSchemaType
+        self, session: AsyncSession, obj_in: CreateSchemaType
     ) -> Optional[ModelType]:
-        model = self.model(**(model if isinstance(model, dict) else dict(model)))
+        model = self.model(**(obj_in if isinstance(obj_in, dict) else dict(obj_in)))
         session.add(model)
         await session.flush()
         try:

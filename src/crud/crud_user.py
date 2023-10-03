@@ -1,15 +1,16 @@
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.security import get_password_hash, verify_password
 from src.crud.base import CRUDBase
 from src.models.user import User
-from src.schemas.user import UserCreate, UserUpdate
+from src.schemas.user import UserCreate, UserInDB, UserUpdate
 
 
-class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+class CRUDUser(CRUDBase[User, UserInDB, UserUpdate]):
     async def get_by_email(
         self, session: AsyncSession, *, email: str
     ) -> Optional[User]:
@@ -28,16 +29,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user
 
     async def add(self, session: AsyncSession, *, obj_in: UserCreate) -> User:
-        db_obj = User(
+        model = User(
             email=obj_in.email,
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
             is_superuser=obj_in.is_superuser,
         )
-        session.add(db_obj)
+        session.add(model)
         await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+        await session.flush()
+
+        try:
+            await session.commit()
+            return model
+        except IntegrityError as e:
+            await session.rollback()
+            raise e
 
     async def update(
         self, session: AsyncSession, id_: int, obj_in: UserUpdate
@@ -49,7 +56,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if update_data["password"]:
             update_data["hashed_password"] = get_password_hash(update_data["password"])
             del update_data["password"]
-        return super().update(session, id_=id_, data=obj_in)
+        return await super().update(session, id_=id_, data=obj_in)
 
     async def is_superuser(self, user: User) -> bool:
         return user.is_superuser
