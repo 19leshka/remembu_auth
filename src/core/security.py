@@ -29,4 +29,4 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    return str(bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt()))
+    return bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt()).decode("utf8")
