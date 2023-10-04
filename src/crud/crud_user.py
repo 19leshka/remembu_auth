@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional, Union
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -47,7 +47,7 @@ class CRUDUser(CRUDBase[User, UserInDB, UserUpdate]):
             raise e
 
     async def update(
-        self, session: AsyncSession, id_: int, obj_in: UserUpdate
+        self, session: AsyncSession, id_: int, obj_in: Union[UserUpdate, Dict[str, Any]]
     ) -> Optional[User]:
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -56,7 +56,7 @@ class CRUDUser(CRUDBase[User, UserInDB, UserUpdate]):
         if update_data["password"]:
             update_data["hashed_password"] = get_password_hash(update_data["password"])
             del update_data["password"]
-        return await super().update(session, id_=id_, data=obj_in)
+        return await super().update(session, id_=id_, data=update_data)
 
     async def is_superuser(self, user: User) -> bool:
         return user.is_superuser

@@ -1,4 +1,4 @@
-from typing import Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel
 from sqlalchemy import Result, and_, delete, select, update
@@ -57,7 +57,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise e
 
     async def update(
-        self, session: AsyncSession, id_: int, data: UpdateSchemaType
+        self,
+        session: AsyncSession,
+        id_: int,
+        data: Union[UpdateSchemaType, Dict[str, Any]],
     ) -> Optional[ModelType]:
         query = (
             update(self.model)
