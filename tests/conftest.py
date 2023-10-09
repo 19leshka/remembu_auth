@@ -19,6 +19,7 @@ async_session_maker = async_sessionmaker(
 @pytest.fixture(scope="session", autouse=True)
 async def init_db():
     async with engine.connect() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
 
