@@ -11,13 +11,11 @@ from src.kafka.consumer import consume as kafka_consume
 from src.kafka.consumer import consumer as kafka_consumer
 from src.kafka.consumer import initialize as kafka_initialize
 from src.kafka.producer import producer as kafka_producer
+from src.middleware.logging import RequestMiddleware
 
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(**app_configs)
+app = FastAPI(**app_configs, debug=True)
 
 
 # Set all CORS enabled origins
@@ -31,11 +29,12 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.add_middleware(RequestMiddleware)
 
 
 @app.on_event("startup")
 async def startup():
-    log.info("Initializing API ...")
+    logger.info("Initializing API ...")
     asyncio.create_task(init_tables())
     # await kafka_producer.start()
     # await kafka_initialize()
