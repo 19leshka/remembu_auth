@@ -37,4 +37,4 @@ ENV PATH=/venv/bin:$PATH
 
 # Copy the application in.
 COPY . .
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "log_config.yml"]
