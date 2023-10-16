@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends
@@ -8,8 +9,11 @@ from starlette import status
 
 from src import crud, models, schemas
 from src.api.deps import get_current_superuser, get_current_user, get_db
-from src.core.exceptions import (DuplicatedEntryError, ForbiddenException,
-                                 NotFoundException)
+from src.core.exceptions import (
+    DuplicatedEntryError,
+    ForbiddenException,
+    NotFoundException,
+)
 
 router = APIRouter()
 
