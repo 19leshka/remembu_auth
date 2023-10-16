@@ -30,8 +30,12 @@ services:
     restart: always
     ports:
       - "8080:8000"
+    volumes:
+      - ./fastapi-logs:/src/logs
     environment:
       PYTHONUNBUFFERED: 1
 
+
 volumes:
   postgres:
+  fastapi:
