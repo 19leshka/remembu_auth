@@ -1,8 +1,7 @@
 from typing import Any
 
 from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
 from src.core.config import settings
@@ -19,7 +18,7 @@ metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
 
 engine = create_async_engine(
     settings.ASYNC_DATABASE_URL,
-    echo=True,
+    echo=settings.DEBUG,
 )
 
 

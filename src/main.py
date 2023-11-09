@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from src.api.api_v1.api import api_router
 from src.core.config import app_configs, settings
+from src.core.jsonlogging import CustomJSONFormatter
 from src.database.postgres.database import init_tables
 from src.kafka.consumer import consume as kafka_consume
 from src.kafka.consumer import consumer as kafka_consumer
@@ -14,8 +15,12 @@ from src.kafka.producer import producer as kafka_producer
 from src.middleware.logging import RequestMiddleware
 
 logger = logging.getLogger(__name__)
+logHandler = logging.StreamHandler()
+formatter = CustomJSONFormatter()
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
 
-app = FastAPI(**app_configs, debug=True)
+app = FastAPI(**app_configs, debug=settings.DEBUG)
 
 
 # Set all CORS enabled origins
