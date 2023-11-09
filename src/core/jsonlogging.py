@@ -8,12 +8,11 @@ class CustomJSONFormatter(logging.Formatter):
             "time": self.formatTime(record),
             "level": record.levelname,
             "logger_name": record.name,
-            "message": record.msg,
+            "message": record.getMessage(),
         }
 
-        # Access additional fields directly from the record's dictionary
         for key, value in record.__dict__.items():
-            if key not in log_data:
+            if key not in log_data and key not in ("msg", "color_message"):
                 log_data[key] = value
 
-        return json.dumps(log_data, ensure_ascii=False)
+        return json.dumps(log_data)
