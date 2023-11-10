@@ -10,7 +10,7 @@ filebeat.inputs:
   scan_frequency: 1s
   enabled: true
   paths:
-    - /src/logs/fastapi-elk-stack.*
+    - /src/logs/*.log
   fields:
     - service: fastapi-app
   fields_under_root: true
@@ -23,19 +23,20 @@ filebeat.inputs:
   ignore_older: 60s # ignore collected files that are N times old.
   close_timeout: 30m #if the harvester fails to finish reading the file within N time, we will close the file in an emergency to free up resources
 
-output.elasticsearch:
-  hosts: ["elasticsearch:9200"]
-  index: "remembu-auth"
+
+queue.disk:
+  max_size: 200GB
+  path: "${path.data}/diskqueue"
   max_retries: -1 # limit the number of attempts to send events. If events are not sent within these attempts, they will be lost. Let's switch this off
 
-monitoring:
-  enabled: true
+output.logstash:
+  encoding: utf-8
+  hosts: ["logstash:5044", "logstash:50000"]
+
+#monitoring:
+#  enabled: true
 
 http:
   enabled: true
   host: localhost
   port: 5066
-
-queue.disk:
-  max_size: 200GB
-  path: "${path.data}/diskqueue"

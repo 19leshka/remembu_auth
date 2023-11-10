@@ -30,12 +30,34 @@ services:
     restart: always
     ports:
       - "8080:8000"
+    expose:
+      - "8080"
     volumes:
       - ./fastapi-logs:/src/logs
     environment:
       PYTHONUNBUFFERED: 1
+    depends_on:
+      - postgres
 
+  filebeat:
+    build:
+      context: ./filebeat
+    container_name: filebeat
+    volumes:
+      - ./fastapi-logs:/src/logs
+#    depends_on:
+#      - elasticsearch
+#      - kibana
+#      - logstash
+    networks:
+      - elk
 
 volumes:
   postgres:
   fastapi:
+  fastapi-logs:
+
+networks:
+  elk:
+#    driver: logging_driver
+    external: true
